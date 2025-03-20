@@ -109,8 +109,5 @@ Defines the relationship where each student is assigned to a professor as their 
 ## Contributing
 Contributions are welcome! Please fork the repository and create a pull request with your changes. Ensure that your code adheres to the project's coding standards and includes appropriate tests.
 
-## License
-This project is licensed under the MIT License. See the [LICENSE](License.txt) file for details.
-
 ## Acknowledgements
 Special thanks to all contributors and the open-source community for their invaluable support and resources.
