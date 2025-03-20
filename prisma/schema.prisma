@@ -10,7 +10,7 @@ datasource db {
 model Student{
 id String @id @default(uuid())
 name String
-dateOfBirth DateTime
+dateOfBirth String
 aadharNumber String @unique
 proctorId String 
 proctor professor @relation(fields: [proctorId], references: [professorId]) 
@@ -27,8 +27,8 @@ model professor{
 model LibraryMembership {
   id          String   @id @default(uuid())
   studentId   String   @unique
-  issueDate   DateTime
-  expiryDate  DateTime
+  issueDate   String
+  expiryDate  String
   student     Student   @relation(fields: [studentId], references: [id])
 
 }
