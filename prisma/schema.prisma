@@ -12,8 +12,8 @@ id String @id @default(uuid())
 name String
 dateOfBirth String
 aadharNumber String @unique
-proctorId String 
-proctor professor @relation(fields: [proctorId], references: [professorId]) 
+proctorId String? 
+proctor professor? @relation(fields: [proctorId], references: [professorId]) 
 libraryMembership LibraryMembership?
 
 }

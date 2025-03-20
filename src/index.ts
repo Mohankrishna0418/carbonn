@@ -41,7 +41,7 @@ app.get("/professors", async (context) => {
 
 // create student
 app.post("/students", async (context) => {
-  const { name, dateOfBirth, aadharNumber, proctorId } =
+  const { name, dateOfBirth, aadharNumber } =
     await context.req.json();
   try {
     const aadharExists = await prisma.student.findUnique({
@@ -57,8 +57,7 @@ app.post("/students", async (context) => {
       data: {
         name: name,
         dateOfBirth: dateOfBirth,
-        aadharNumber: aadharNumber,
-        proctorId: proctorId,
+        aadharNumber: aadharNumber
       },
     });
     return context.json(student, 200);
@@ -101,8 +100,8 @@ app.get("/professors/:professorId/proctorships", async (context) => {
   try {
     const students = await prisma.student.findMany({
       where: {
-        proctorId: professorId,
-      },
+        proctorId: professorId
+      }
     });
     return context.json(students);
   } catch {
@@ -144,6 +143,198 @@ app.patch("/students/:studentId", async (context) => {
   }
 });
 
-//
+//update professor details using professorId
+app.patch("/professors/:professorId", async (context) => {
+  const professorId = context.req.param("professorId");
+  const { name, seniority, aadharNumber } = await context.req.json();
+  try {
+    const uniqueProfessorId = await prisma.professor.findUnique({
+      where: {
+        professorId: professorId,
+      },
+    });
+    if (!uniqueProfessorId) {
+      return context.json("404 Error: Unable to find professor data.", 404);
+    }
+    const professor = await prisma.professor.update({
+      where: {
+        professorId: professorId,
+      },
+      data: {
+        name: name,
+        seniority: seniority,
+        aadharNumber: aadharNumber,
+      },
+    });
+    return context.json(professor, 200);
+  } catch {
+    return context.json("404 Error: Unable to update professor data.", 404);
+  }
+});
+
+//delete student using studentId
+app.delete("/students/:studentId", async (context) => {
+  const studentId = context.req.param("studentId");
+  try {
+    const student = await prisma.student.delete({
+      where: {
+        id: studentId,
+      },
+    });
+    return context.json(student, 200);
+  } catch {
+    return context.json("404 Error: Unable to delete student data.", 404);
+  }
+});
+
+//delete professor using professorId
+app.delete("/professors/:professorId", async (context) => {
+  const professorId = context.req.param("professorId");
+  try {
+    const uniqueProfessorId = await prisma.professor.findUnique({
+      where: {
+        professorId: professorId,
+      },
+    });
+    if (!uniqueProfessorId) {
+      return context.json("404 Error: Unable to find professor data.", 404);
+    }
+    const professor = await prisma.professor.delete({
+      where: {
+        professorId: professorId,
+      },
+    });
+    return context.json(professor, 200);
+  } catch {
+    return context.json("404 Error: Unable to delete professor data.", 404);
+  }   
+});
+
+//post professor with proctorship
+app.post("/professors/:professorId/proctorships", async (context) => {
+  const professorId = context.req.param("professorId");
+  const { studentId } = await context.req.json();
+  try {
+    const uniqueProfessorId = await prisma.professor.findUnique({
+      where: {
+        professorId: professorId,
+      },
+    });
+    if (!uniqueProfessorId) {
+      return context.json("404 Error: Unable to find professor data.", 404);
+    }
+    const student = await prisma.student.update({
+      where: {
+        id: studentId,
+      },
+      data: {
+        proctorId: professorId,
+      },
+    });
+    return context.json(student, 200);
+  } catch {
+    return context.json("404 Error: Unable to update student data.", 404);
+  }
+});
+
+//get student with library membership
+app.get("/students/:studentId/libraryMembership", async (context) => {
+  const studentId = context.req.param("studentId");
+  try {
+    const uniqueStudentId = await prisma.student.findUnique({
+      where: {
+        id: studentId,
+      },
+    });
+    if (!uniqueStudentId) {
+      return context.json("404 Error: Unable to find student data.", 404);
+    }
+    const libraryMembership = await prisma.libraryMembership.findMany({
+      where: {
+        studentId: studentId,
+      },
+    });
+    return context.json(libraryMembership, 200);
+  } catch {
+    return context.json("404 Error: Unable to update student data.", 404);
+  }
+});
+
+//post students with library membership
+app.post("/students/:studentId/libraryMembership", async (context) => {
+  const studentId = context.req.param("studentId");
+  const { issueDate, expiryDate } = await context.req.json();
+  try {
+    const uniqueStudentId = await prisma.student.findUnique({
+      where: {
+        id: studentId,
+      },
+    });
+    if (!uniqueStudentId) {
+      return context.json("404 Error: Unable to find student data.", 404);
+    }
+    const libraryMembership = await prisma.libraryMembership.create({
+      data: {
+        studentId: studentId,
+        issueDate: issueDate,
+        expiryDate: expiryDate,
+      },
+    });
+    return context.json(libraryMembership, 200);
+  } catch {
+    return context.json("404 Error: Unable to update student data.", 404);
+  }
+});
+
+//update student with library membership
+app.patch("/students/:studentId/libraryMembership", async (context) => {
+  const studentId = context.req.param("studentId");
+  const { issueDate, expiryDate } = await context.req.json();
+  try {
+    const uniqueStudentId = await prisma.student.findUnique({
+      where: {
+        id: studentId,
+      },
+    });
+    if (!uniqueStudentId) {
+      return context.json("404 Error: Unable to find student data.", 404);
+    }
+    const libraryMembership = await prisma.libraryMembership.update({
+      where: {
+        studentId: studentId,
+      },
+      data: {
+        issueDate: issueDate,
+        expiryDate: expiryDate,
+      },
+    });
+    return context.json(libraryMembership, 200);
+  } catch {
+    return context.json("404 Error: Unable to update student data.", 404);
+  }
+});
+
+//delete student with library membership
+app.delete("/students/:studentId/libraryMembership", async (context) => {
+  const studentId = context.req.param("studentId");
+  try {
+    const uniqueStudentId = await prisma.student.findUnique({
+      where: {
+        id: studentId,
+      },
+    });
+    if (!uniqueStudentId) {
+      return context.json("404 Error: Unable to find student data.", 404);
+    }
+    const libraryMembership = await prisma.libraryMembership.delete({
+      where: {
+        studentId: studentId,
+      },
+    });
+    return context.json(libraryMembership, 200);
+  } catch {
+    return context.json("404 Error: Unable to update student data.", 404);    
+  }
+});
 
 serve(app); 
